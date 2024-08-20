@@ -1,4 +1,3 @@
-
 from botcity.plugins.email import BotEmailPlugin
 import tabula
 import os
@@ -28,8 +27,6 @@ def extrair_dados_pdf():
     #Exportando para o excel
     df_resultado.to_excel("dados.xlsx", index=False)
 
-
-
 def move_arquivos():
 
     diretorio = os.listdir()
@@ -49,88 +46,64 @@ def move_arquivos():
         if arquivo.endswith('.pdf'):
             shutil.move(arquivo, 'Arquivos PDF')
             
+def enviar_email():
+    
+    load_dotenv()
 
+    email_usuario = os.getenv('USER_EMAIL')
+    app_password = os.getenv('USER_PASSWORD')
 
-def enviar_email(user, password, arquivo, destinatarios, assunto, corpo):
+   
+    # Instantiate the plugin
     email = BotEmailPlugin()
 
-    # Configuração do servidor IMAP para leitura de e-mails
-    email.configure_imap('imap.gmail.com', 993)
+    # Configure IMAP with the gmail server
+    email.configure_imap("imap.gmail.com", 993)
 
-    # Configuração do servidor SMTP para envio de e-mails
-    email.configure_smtp("imap.gmail.com", 587) 
+    # Configure SMTP with the gmail server
+    email.configure_smtp("imap.gmail.com", 587)
 
-    # Login com uma conta de e-mail válida
-    email.login(user, password)
+    # Login with a valid email account
+    email.login(email_usuario, app_password)
 
-    # Pesquisa todos os e-mails com o assunto específico (opcional, você pode remover essa parte se não precisar)
-    messages = email.search(f'SUBJECT "{assunto}"')
+    # Search for all emails with subject: Test Message
+    messages = email.search('SUBJECT "Test Message"')
 
-    # Para cada e-mail encontrado: imprime a data, o endereço do remetente e o conteúdo do e-mail
+    # For each email found: prints the date, sender address and text content of the email
     for msg in messages:
         print("\n---------------------------")
         print("Date => " + msg.date_str)
         print("From => " + msg.from_)
         print("Msg => " + msg.text)
 
-    # # Defining the attributes that will compose the message
-    # to = ["<RECEIVER_ADDRESS_1>", "<RECEIVER_ADDRESS_2>"]
-    # subject = "Hello World"
-    # body = "<h1>Hello!</h1> This is a test message!"
-    # files = [arquivo]
+    # Defining the attributes that will compose the message
+    to = ["matheusinicial@gmail.com", "ceramarpinheiro1@gmail.com"]
+    subject = "Esse é um teste para o e-mail"
+    body = """<h1>Olá Matheus</h1>
 
-    # Enviando a mensagem de e-mail
-    email.send_message(assunto, corpo, destinatarios, attachments=[arquivo], use_html=True)
+            <p>É com muito orgulho que conseguimos extrair os dados do PDF e mandar por e-mail</p>
 
-    # Fecha a conexão com os servidores IMAP e SMTP
+            <h3>Parabéns 🚀</h3>"""
+    files = ["dados.xlsx"]
+
+    # Sending the email message
+    email.send_message(subject, body, to, attachments=files, use_html=True)
+
+    # Close the conection with the IMAP and SMTP servers
     email.disconnect()
 
-
 def main():
+
     try:
-
-        load_dotenv()
-
-        email_usuario = os.getenv('EMAIL_USER')
-        app_password = os.getenv('USER_PASSWORD')
-
-        print(app_password)
-
-      
-
-
-
-        # extrair_dados_pdf()
-
-        # assunto = 'Dados extraidos do PDF'
-        # body = f"""
-        #     <h1>Olá Matheus</h1>
-
-        #     <p>É com muito orgulho que conseguimos extrair os dados do PDF e mandar por e-mail</p>
-
-        #     <h3>Parabéns lindão 🚀</h3>
-
-        # """
-
-        # enviar_email(usuario_email, usuario_email_senha, 'dados.xlsx', 'matheusinicial@gmail.com',assunto, body)
-
-
-        
-   
-            
+        extrair_dados_pdf()
+        enviar_email()
 
     except Exception as ex:
         print(ex)
     
     finally:       
         move_arquivos()
-
-
-
-
-
-
-
+        print('Finalizando o processo...')
 
 
 if __name__ == '__main__':
