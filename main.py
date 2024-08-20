@@ -7,6 +7,16 @@ from dotenv import load_dotenv
 
 
 def extrair_dados_pdf():
+    """
+    Extrai dados de uma tabela em um arquivo PDF e exporta os dados para um arquivo Excel.
+
+    1. Lê o arquivo PDF localizado como 'criacao_valor.pdf', especificamente a página 10.
+    2. Captura a primeira tabela encontrada na página especificada.
+    3. Remove linhas e colunas totalmente vazias da tabela.
+    4. Define as colunas da tabela com os nomes: 'RUBRICAS', '2009', '2010', '2011', '2012'.
+    5. Reseta os índices da tabela.
+    6. Exporta a tabela resultante para um arquivo Excel chamado 'dados.xlsx', sem incluir os índices.
+    """
     #Lendo o pdf 
     tabelas = tabula.read_pdf("criacao_valor.pdf", pages=10)
 
@@ -28,6 +38,13 @@ def extrair_dados_pdf():
     df_resultado.to_excel("dados.xlsx", index=False)
 
 def move_arquivos():
+    """
+    Move arquivos de acordo com suas extensões para diretórios específicos.
+
+    1. Verifica se os diretórios 'Arquivos PDF' e 'Arquivos Excel' existem. Se não existirem, cria-os.
+    2. Move arquivos com extensão '.xlsx' para o diretório 'Arquivos Excel'.
+    3. Move arquivos com extensão '.pdf' para o diretório 'Arquivos PDF'.
+    """
 
     diretorio = os.listdir()
 
@@ -47,16 +64,25 @@ def move_arquivos():
             shutil.move(arquivo, 'Arquivos PDF')
             
 def enviar_email():
+    """
+    Envia um e-mail com um arquivo em anexo e busca por e-mails específicos.
+
+    1. Carrega as variáveis de ambiente para o e-mail e senha do aplicativo.
+    2. Configura o plugin de e-mail para IMAP e SMTP com o servidor do Gmail.
+    3. Realiza o login com o e-mail e senha fornecidos.
+    4. Busca e imprime e-mails com o assunto 'Test Message'.
+    5. Envia um e-mail para os destinatários especificados com um anexo e conteúdo HTML.
+    6. Desconecta dos servidores IMAP e SMTP após o envio.
+    """
     
     load_dotenv()
 
     email_usuario = os.getenv('USER_EMAIL')
     app_password = os.getenv('USER_PASSWORD')
 
-   
     # Instantiate the plugin
     email = BotEmailPlugin()
-
+    
     # Configure IMAP with the gmail server
     email.configure_imap("imap.gmail.com", 993)
 
